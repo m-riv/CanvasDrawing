@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+    <style type="text/css">
+        html{
+            width:100%;
+            height:100%;
+        }
+        body{
+            margin:0;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas">
+    This browser is not supported.
+</canvas>
+<script src="jquery-2.2.3.min.js"></script>
+<script>
+    var canvas;
+    var context;
+    var isDown = false;
+    var prevX;
+    var prevY;
+
+    function initCanvas() {
+        var w_width = $(window).width();
+        var w_height = $(window).height();
+        $('#canvas').attr('width', w_width);
+        $('#canvas').attr('height', w_height);
+        console.log("w_width" + w_width);
+        console.log("w_height" + w_height);
+
+        canvas = document.getElementById("canvas");
+
+        if (!canvas || !canvas.getContext) {
+            if (!canvas) {
+                console.info("canvas null");
+            }
+            if (!canvas.getContext) {
+                console.info("can not get context")
+            }
+            console.error("canvas error");
+            return false;
+        }
+        context = canvas.getContext('2d');
+        context.strokeRect(0, 0, canvas.width, canvas.height);
+        return true;
+    }
+
+    function setEvents() {
+        function onMove(e) {
+            if(isDown){
+                console.log("clicked!");
+                var rect = e.target.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                draw(x, y);
+            }
+        }
+
+        function touchMove(e) {
+            if(isDown){
+
+                console.log('touch');
+                var rect = e.target.getBoundingClientRect();
+                var x = event.changedTouches[0].pageX - rect.left;
+                var y = event.changedTouches[0].pageY - rect.top;
+                draw(x, y);
+            }
+        }
+
+        function draw(x, y) {
+            context.beginPath();
+            context.moveTo(prevX, prevY);
+            context.lineTo(x,y);
+            context.stroke();
+            prevX = x;
+            prevY = y;
+        }
+
+        function onDown(e) {
+            isDown = true;
+            console.log('down');
+        }
+
+        function onUp(e) {
+            isDown = false;
+            console.log('up');
+            prevX = undefined;
+            prevY = undefined;
+        }
+
+        canvas.addEventListener("mousedown", onDown);
+        canvas.addEventListener("mouseup", onUp);
+        canvas.addEventListener("mousemove", onMove);
+        canvas.addEventListener("mouseout", onUp);
+        canvas.addEventListener("touchstart", onDown);
+        canvas.addEventListener("touchend", onUp);
+        canvas.addEventListener("touchmove", touchMove);
+    }
+
+    $(document).ready(function () {
+        initCanvas();
+        setEvents();
+    });
+</script>
+</body>
+</html>
